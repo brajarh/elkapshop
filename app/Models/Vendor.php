@@ -12,32 +12,36 @@ class Vendor extends Model
         return $this->read('SELECT * FROM `v_vendor_aktif`');
     }
 
-    // Disiapkan untuk integrasi SP; update dan hapus belum diaktifkan.
+    public function find(int $id): ?array
+    {
+        foreach ($this->all() as $row) {
+            if (isset($row['idvendor']) && (int) $row['idvendor'] === $id) {
+                return $row;
+            }
+        }
+        return null;
+    }
 
-    public function tambah($idvendor, $nama_vendor, $badan_hukum, $status): void
+    public function tambah($nama_vendor, $badan_hukum, $status): void
     {
         $this->call(
-            'CALL sp_vendor_tambah(?, ?, ?, ?)',
-            'isss',
-            [$idvendor, $nama_vendor, $badan_hukum, $status]
+            'CALL sp_vendor_tambah(?, ?, ?)',
+            'sss',
+            [$nama_vendor, $badan_hukum, $status]
         );
     }
 
     public function update($idvendor, $nama_vendor, $badan_hukum, $status): void
     {
-        $this->call(
-            'CALL sp_vendor_update(?, ?, ?, ?)',
-            'isss',
-            [$idvendor, $nama_vendor, $badan_hukum, $status]
+        $this->write(
+            'UPDATE `VENDOR` SET `nama_vendor` = ?, `badan_hukum` = ?, `status` = ? WHERE `idvendor` = ?',
+            'sssi',
+            [$nama_vendor, $badan_hukum, $status, $idvendor]
         );
     }
 
     public function hapus(int $id): void
     {
-        $this->call(
-            'CALL sp_vendor_hapus(?)',
-            'i',
-            [$id]
-        );
+        $this->write('DELETE FROM `VENDOR` WHERE `idvendor` = ?', 'i', [$id]);
     }
 }

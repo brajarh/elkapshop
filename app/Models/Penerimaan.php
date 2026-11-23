@@ -129,4 +129,53 @@ class Penerimaan extends Model
             [$idpenerimaan]
         );
     }
+
+    private function lockDraft(int $id): array
+    {
+        $rows = $this->read('SELECT status, idpengadaan FROM PENERIMAAN WHERE idpenerimaan = ? FOR UPDATE', 'i', [$id]);
+        if (!$rows || $rows[0]['status'] !== 'D') throw new RuntimeException('Hanya penerimaan Draft yang dapat diubah.');
+        return $rows[0];
+    }
+
+    public function update(int $id, int $iduser): void
+    {
+        $this->atomic(function () use ($id, $iduser) {
+            $this->lockDraft($id);
+            $this->write('UPDATE PENERIMAAN SET iduser = ? WHERE idpenerimaan = ?', 'ii', [$iduser, $id]);
+        });
+    }
+
+    public function hapus(int $id): void
+    {
+        $this->atomic(function () use ($id) {
+            $this->lockDraft($id);
+            $this->write('DELETE FROM detail_penerimaan WHERE idpenerimaan = ?', 'i', [$id]);
+            $this->write('DELETE FROM PENERIMAAN WHERE idpenerimaan = ?', 'i', [$id]);
+        });
+    }
+
+    public function updateDetail(int $id, int $detail, int $harga, int $jumlah): void
+    {
+        if ($harga < 0 || $jumlah <= 0) throw new InvalidArgumentException('Harga atau jumlah tidak valid.');
+        $this->atomic(function () use ($id, $detail, $harga, $jumlah) {
+            $header = $this->lockDraft($id);
+            $pengadaan = (int) $header['idpengadaan'];
+            $this->read('SELECT idpengadaan FROM PENGADAAN WHERE idpengadaan = ? FOR UPDATE', 'i', [$pengadaan]);
+            $rows = $this->read('SELECT barang_idbarang FROM detail_penerimaan WHERE idpenerimaan = ? AND iddetail_penerimaan = ? FOR UPDATE', 'ii', [$id, $detail]);
+            if (!$rows) throw new RuntimeException('Detail tidak ditemukan.');
+            $produk = (int) $rows[0]['barang_idbarang'];
+            $ordered = $this->read('SELECT jumlah FROM detail_pengadaan WHERE idpengadaan = ? AND idbarang = ? FOR UPDATE', 'ii', [$pengadaan, $produk]);
+            $received = $this->read('SELECT d.jumlah_terima FROM detail_penerimaan d JOIN PENERIMAAN p ON p.idpenerimaan = d.idpenerimaan WHERE p.idpengadaan = ? AND d.barang_idbarang = ? AND d.iddetail_penerimaan <> ? FOR UPDATE', 'iii', [$pengadaan, $produk, $detail]);
+            if ($jumlah + array_sum(array_column($received, 'jumlah_terima')) > array_sum(array_column($ordered, 'jumlah'))) throw new RuntimeException('Jumlah melebihi sisa pengadaan.');
+            $this->write('UPDATE detail_penerimaan SET harga_satuan_terima = ?, jumlah_terima = ?, sub_total_terima = ? * ? WHERE idpenerimaan = ? AND iddetail_penerimaan = ?', 'iiiiii', [$harga, $jumlah, $harga, $jumlah, $id, $detail]);
+        });
+    }
+
+    public function hapusDetail(int $id, int $detail): void
+    {
+        $this->atomic(function () use ($id, $detail) {
+            $this->lockDraft($id);
+            if (!$this->write('DELETE FROM detail_penerimaan WHERE idpenerimaan = ? AND iddetail_penerimaan = ?', 'ii', [$id, $detail])) throw new RuntimeException('Detail tidak ditemukan.');
+        });
+    }
 }

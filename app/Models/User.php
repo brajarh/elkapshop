@@ -7,32 +7,36 @@ class User extends Model
         return $this->read('SELECT * FROM `V_USER`');
     }
 
-    // Disiapkan untuk integrasi SP; update dan hapus belum diaktifkan.
+    public function find(int $id): ?array
+    {
+        foreach ($this->all() as $row) {
+            if (isset($row['ID']) && (int) $row['ID'] === $id) {
+                return $row;
+            }
+        }
+        return null;
+    }
 
-    public function tambah($iduser, $username, $password, $idrole): void
+    public function tambah($username, $password, $idrole): void
     {
         $this->call(
-            'CALL sp_user_tambah(?, ?, ?, ?)',
-            'issi',
-            [$iduser, $username, $password, $idrole]
+            'CALL sp_user_tambah(?, ?, ?)',
+            'ssi',
+            [$username, $password, $idrole]
         );
     }
 
     public function update($iduser, $username, $password, $idrole): void
     {
-        $this->call(
-            'CALL sp_user_update(?, ?, ?, ?)',
-            'issi',
-            [$iduser, $username, $password, $idrole]
+        $this->write(
+            'UPDATE `USER` SET `username` = ?, `password` = ?, `idrole` = ? WHERE `iduser` = ?',
+            'ssii',
+            [$username, $password, $idrole, $iduser]
         );
     }
 
     public function hapus(int $id): void
     {
-        $this->call(
-            'CALL sp_user_hapus(?)',
-            'i',
-            [$id]
-        );
+        $this->write('DELETE FROM `USER` WHERE `iduser` = ?', 'i', [$id]);
     }
 }

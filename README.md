@@ -1,3 +1,4 @@
+> Untuk perubahan terbaru, baca README_CRUD.md; catatan di bawah menggambarkan versi awal.
 # Elkap Barbershop — PHP Native MVC (revisi VIEW)
 
 Proyek praktikum lokal, enam modul master terpisah, tanpa transaksi atau login.

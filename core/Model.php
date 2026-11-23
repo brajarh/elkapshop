@@ -20,6 +20,31 @@ abstract class Model
         return $rows;
     }
 
+    // Prepared statement untuk UPDATE dan DELETE langsung.
+    protected function write(string $sql, string $types, array $params): int
+    {
+        $stmt = $this->db->prepare($sql);
+        try {
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            return $stmt->affected_rows;
+        } finally {
+            $stmt->close();
+        }
+    }
+
+    protected function atomic(callable $operation): void
+    {
+        $this->db->begin_transaction();
+        try {
+            $operation();
+            $this->db->commit();
+        } catch (Throwable $e) {
+            $this->db->rollback();
+            throw $e;
+        }
+    }
+
     protected function call(string $sql, string $types, array $params): void
     {
         $stmt = $this->db->prepare($sql);

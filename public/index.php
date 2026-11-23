@@ -52,6 +52,11 @@ if ($page === 'penerimaan') {
     $actions[] = 'simpan';
 }
 
+    if (in_array($page, ['pengadaan', 'penerimaan'], true)) {
+        $actions[] = 'updateDetail';
+        $actions[] = 'deleteDetail';
+    }
+
     // Memeriksa halaman dan action
     if (
         !is_string($page) ||
@@ -82,6 +87,8 @@ if ($page === 'penerimaan') {
         'addDetail',
         'finish',
         'storeDetail',
+        'updateDetail',
+        'deleteDetail',
         'simpan'
     ],
     true

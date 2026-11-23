@@ -18,29 +18,21 @@
             value="<?= e($_SESSION['csrf']) ?>"
         >
 
-        <label for="iduser">
-            ID User
-        </label>
+        <label for="iduser">User</label>
+        <select id="iduser" name="iduser" required>
+            <option value="">-- Pilih User --</option>
+            <?php foreach ($users as $u): ?>
+                <option value="<?= e($u['ID']) ?>"><?= e($u['USERNAME']) ?></option>
+            <?php endforeach; ?>
+        </select>
 
-        <input
-            type="number"
-            id="iduser"
-            name="iduser"
-            min="1"
-            required
-        >
-
-        <label for="idvendor">
-            ID Vendor
-        </label>
-
-        <input
-            type="number"
-            id="idvendor"
-            name="idvendor"
-            min="1"
-            required
-        >
+        <label for="idvendor">Vendor</label>
+        <select id="idvendor" name="idvendor" required>
+            <option value="">-- Pilih Vendor --</option>
+            <?php foreach ($vendors as $v): ?>
+                <option value="<?= e($v['idvendor']) ?>"><?= e($v['nama_vendor']) ?></option>
+            <?php endforeach; ?>
+        </select>
 
         <p>
             Status awal: Draft (D)

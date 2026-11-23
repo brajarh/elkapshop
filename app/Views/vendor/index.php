@@ -23,6 +23,7 @@
                     <th>Nama Vendor</th>
                     <th>Badan Hukum</th>
                     <th>Status</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,12 +34,23 @@
                         <td><?= e($row['nama_vendor']) ?></td>
                         <td><?= e($row['badan_hukum']) ?></td>
                         <td><?= e($row['status']) ?></td>
+                        <td>
+                            <?php if (isset($row['idvendor']) && (int) $row['idvendor'] > 0): ?>
+                                <a class="btn secondary" href="<?= e(url('vendor', 'edit', ['id' => (int) $row['idvendor']])) ?>">Edit</a>
+                                <form method="post" action="<?= e(url('vendor', 'delete', ['id' => (int) $row['idvendor']])) ?>" style="display:inline" onsubmit="return confirm('Yakin hapus data ini?')">
+                                    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            <?php else: ?>
+                                <small>VIEW belum menyediakan ID.</small>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
 
                 <?php if (!$rows): ?>
                     <tr>
-                        <td colspan="4">Belum ada data.</td>
+                        <td colspan="5">Belum ada data.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

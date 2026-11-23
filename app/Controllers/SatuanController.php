@@ -44,7 +44,6 @@ class SatuanController extends Controller
     public function store(): void
     {
         $this->model->tambah(
-            $this->post('idsatuan', 'i'),
             $this->post('namaSatuan', 's', 45),
             $this->post('Status', 'i')
         );
@@ -54,22 +53,46 @@ class SatuanController extends Controller
 
     public function edit(): void
     {
-        throw new RuntimeException(
-            'Fitur edit belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        $row = $this->model->find($id);
+        if (!$row) {
+            throw new RuntimeException('Data tidak ditemukan atau VIEW belum menyediakan ID.');
+        }
+        foreach (['SATUAN', 'Status'] as $key) {
+            if (!array_key_exists($key, $row)) {
+                throw new RuntimeException('VIEW belum menyediakan kolom: ' . $key);
+            }
+        }
+        $this->view('satuan/form', [
+            'title' => 'Edit Satuan',
+            'row' => $row
+        ]);
     }
 
     public function update(): void
     {
-        throw new RuntimeException(
-            'Fitur update belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        if (!in_array($this->post('Status', 'i'), [0, 1], true)) {
+            throw new InvalidArgumentException('Status tidak valid.');
+        }
+        $this->model->update(
+            $id,
+            $this->post('namaSatuan', 's', 45),
+            $this->post('Status', 'i')
         );
+        $this->redirect('satuan');
     }
 
     public function delete(): void
     {
-        throw new RuntimeException(
-            'Fitur delete belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        $this->model->hapus($id);
+        $this->redirect('satuan');
     }
 }

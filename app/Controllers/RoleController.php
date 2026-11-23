@@ -33,7 +33,6 @@ class RoleController extends Controller
     public function store(): void
     {
         $this->model->tambah(
-            $this->post('idrole', 'i'),
             $this->post('nama_role', 's', 100)
         );
 
@@ -42,22 +41,42 @@ class RoleController extends Controller
 
     public function edit(): void
     {
-        throw new RuntimeException(
-            'Fitur edit belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        $row = $this->model->find($id);
+        if (!$row) {
+            throw new RuntimeException('Data tidak ditemukan atau VIEW belum menyediakan ID.');
+        }
+        foreach (['nama_role'] as $key) {
+            if (!array_key_exists($key, $row)) {
+                throw new RuntimeException('VIEW belum menyediakan kolom: ' . $key);
+            }
+        }
+        $this->view('role/form', [
+            'title' => 'Edit Role',
+            'row' => $row
+        ]);
     }
 
     public function update(): void
     {
-        throw new RuntimeException(
-            'Fitur update belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        $this->model->update(
+            $id,
+            $this->post('nama_role', 's', 100)
         );
+        $this->redirect('role');
     }
 
     public function delete(): void
     {
-        throw new RuntimeException(
-            'Fitur delete belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        $this->model->hapus($id);
+        $this->redirect('role');
     }
 }

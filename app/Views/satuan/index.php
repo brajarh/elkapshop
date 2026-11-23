@@ -22,6 +22,7 @@
                     <th>No</th>
                     <th>Satuan</th>
                     <th>Status</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,12 +32,23 @@
                         <td><?= $no++ ?></td>
                         <td><?= e($row['SATUAN']) ?></td>
                         <td><?= e($row['Status']) ?></td>
+                        <td>
+                            <?php if (isset($row['idsatuan']) && (int) $row['idsatuan'] > 0): ?>
+                                <a class="btn secondary" href="<?= e(url('satuan', 'edit', ['id' => (int) $row['idsatuan']])) ?>">Edit</a>
+                                <form method="post" action="<?= e(url('satuan', 'delete', ['id' => (int) $row['idsatuan']])) ?>" style="display:inline" onsubmit="return confirm('Yakin hapus data ini?')">
+                                    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            <?php else: ?>
+                                <small>VIEW belum menyediakan ID.</small>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
 
                 <?php if (!$rows): ?>
                     <tr>
-                        <td colspan="3">Belum ada data.</td>
+                        <td colspan="4">Belum ada data.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

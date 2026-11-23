@@ -44,7 +44,6 @@ class VendorController extends Controller
     public function store(): void
     {
         $this->model->tambah(
-            $this->post('idvendor', 'i'),
             $this->post('nama_vendor', 's', 100),
             $this->post('badan_hukum', 's', 1),
             $this->post('status', 's', 1)
@@ -55,22 +54,47 @@ class VendorController extends Controller
 
     public function edit(): void
     {
-        throw new RuntimeException(
-            'Fitur edit belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        $row = $this->model->find($id);
+        if (!$row) {
+            throw new RuntimeException('Data tidak ditemukan atau VIEW belum menyediakan ID.');
+        }
+        foreach (['nama_vendor', 'badan_hukum', 'status'] as $key) {
+            if (!array_key_exists($key, $row)) {
+                throw new RuntimeException('VIEW belum menyediakan kolom: ' . $key);
+            }
+        }
+        $this->view('vendor/form', [
+            'title' => 'Edit Vendor',
+            'row' => $row
+        ]);
     }
 
     public function update(): void
     {
-        throw new RuntimeException(
-            'Fitur update belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        if (!in_array($this->post('status', 's'), ['0', '1'], true)) {
+            throw new InvalidArgumentException('Status tidak valid.');
+        }
+        $this->model->update(
+            $id,
+            $this->post('nama_vendor', 's', 100),
+            $this->post('badan_hukum', 's', 1),
+            $this->post('status', 's', 1)
         );
+        $this->redirect('vendor');
     }
 
     public function delete(): void
     {
-        throw new RuntimeException(
-            'Fitur delete belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        $this->model->hapus($id);
+        $this->redirect('vendor');
     }
 }

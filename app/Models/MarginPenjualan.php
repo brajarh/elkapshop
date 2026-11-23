@@ -12,7 +12,15 @@ class MarginPenjualan extends Model
         return $this->read('SELECT * FROM `v_margin_aktif`');
     }
 
-    // Disiapkan untuk integrasi SP; update dan hapus belum diaktifkan.
+    public function find(int $id): ?array
+    {
+        foreach ($this->all() as $row) {
+            if (isset($row['idmargin_penjualan']) && (int) $row['idmargin_penjualan'] === $id) {
+                return $row;
+            }
+        }
+        return null;
+    }
 
     public function tambah($idmargin_penjualan, $created_at, $persen, $status, $iduser, $updated_at): void
     {
@@ -25,19 +33,15 @@ class MarginPenjualan extends Model
 
     public function update($idmargin_penjualan, $created_at, $persen, $status, $iduser, $updated_at): void
     {
-        $this->call(
-            'CALL sp_margin_penjualan_update(?, ?, ?, ?, ?, ?)',
-            'isdiis',
-            [$idmargin_penjualan, $created_at, $persen, $status, $iduser, $updated_at]
+        $this->write(
+            'UPDATE `MARGIN_PENJUALAN` SET `created_at` = ?, `persen` = ?, `status` = ?, `iduser` = ?, `updated_at` = ? WHERE `idmargin_penjualan` = ?',
+            'sdiisi',
+            [$created_at, $persen, $status, $iduser, $updated_at, $idmargin_penjualan]
         );
     }
 
     public function hapus(int $id): void
     {
-        $this->call(
-            'CALL sp_margin_penjualan_hapus(?)',
-            'i',
-            [$id]
-        );
+        $this->write('DELETE FROM `MARGIN_PENJUALAN` WHERE `idmargin_penjualan` = ?', 'i', [$id]);
     }
 }

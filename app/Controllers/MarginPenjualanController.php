@@ -57,22 +57,49 @@ class MarginPenjualanController extends Controller
 
     public function edit(): void
     {
-        throw new RuntimeException(
-            'Fitur edit belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        $row = $this->model->find($id);
+        if (!$row) {
+            throw new RuntimeException('Data tidak ditemukan atau VIEW belum menyediakan ID.');
+        }
+        foreach (['created_at', 'persen', 'status', 'iduser', 'updated_at'] as $key) {
+            if (!array_key_exists($key, $row)) {
+                throw new RuntimeException('VIEW belum menyediakan kolom: ' . $key);
+            }
+        }
+        $this->view('margin-penjualan/form', [
+            'title' => 'Edit MarginPenjualan',
+            'row' => $row
+        ]);
     }
 
     public function update(): void
     {
-        throw new RuntimeException(
-            'Fitur update belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        if (!in_array($this->post('status', 'i'), [0, 1], true)) {
+            throw new InvalidArgumentException('Status tidak valid.');
+        }
+        $this->model->update(
+            $id,
+            $this->post('created_at', 't'),
+            $this->post('persen', 'd'),
+            $this->post('status', 'i'),
+            $this->post('iduser', 'i'),
+            $this->post('updated_at', 't')
         );
+        $this->redirect('margin-penjualan');
     }
 
     public function delete(): void
     {
-        throw new RuntimeException(
-            'Fitur delete belum tersedia: VIEW belum menyediakan seluruh data yang diperlukan.'
-        );
+        $id = $this->id();
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException('Data tidak ditemukan.');
+        }
+        $this->model->hapus($id);
+        $this->redirect('margin-penjualan');
     }
 }

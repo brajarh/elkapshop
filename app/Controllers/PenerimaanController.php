@@ -148,4 +148,77 @@ class PenerimaanController extends Controller
         );
         exit;
     }
+
+    private function draft(int $id): array
+    {
+        $row = $this->model->find($id);
+        if (!$row || $row['status'] !== 'D') {
+            throw new RuntimeException('Hanya transaksi Draft yang dapat diubah.');
+        }
+        return $row;
+    }
+
+    private function detailDraft(int $id, int $detail): void
+    {
+        $this->draft($id);
+        foreach ($this->model->detail($id) as $row) {
+            if (isset($row['iddetail_penerimaan']) && (int) $row['iddetail_penerimaan'] === $detail) {
+                return;
+            }
+        }
+        throw new RuntimeException('Detail tidak ditemukan pada transaksi ini.');
+    }
+
+    public function edit(): void
+    {
+        $id = $this->id();
+        $row = $this->draft($id);
+        $this->view('penerimaan/edit', ['title' => 'Edit Penerimaan', 'row' => $row]);
+    }
+
+    public function update(): void
+    {
+        $id = $this->id();
+        $this->draft($id);
+        $iduser = $this->post('iduser', 'i');
+        if ($iduser <= 0) {
+            throw new InvalidArgumentException('ID tidak valid.');
+        }
+        $this->model->update($id, $iduser);
+        header('Location: ' . url('penerimaan', 'show', ['id' => $id]));
+        exit;
+    }
+
+    public function delete(): void
+    {
+        $id = $this->id();
+        $this->draft($id);
+        $this->model->hapus($id);
+        $this->redirect('penerimaan');
+    }
+
+    public function updateDetail(): void
+    {
+        $id = $this->id();
+        $detail = $this->post('detail', 'i');
+        $harga = $this->post('harga', 'i');
+        $jumlah = $this->post('jumlah', 'i');
+        $this->detailDraft($id, $detail);
+        if ($harga < 0 || $jumlah <= 0) {
+            throw new InvalidArgumentException('Harga atau jumlah tidak valid.');
+        }
+        $this->model->updateDetail($id, $detail, $harga, $jumlah);
+        header('Location: ' . url('penerimaan', 'show', ['id' => $id]));
+        exit;
+    }
+
+    public function deleteDetail(): void
+    {
+        $id = $this->id();
+        $detail = $this->post('detail', 'i');
+        $this->detailDraft($id, $detail);
+        $this->model->hapusDetail($id, $detail);
+        header('Location: ' . url('penerimaan', 'show', ['id' => $id]));
+        exit;
+    }
 }

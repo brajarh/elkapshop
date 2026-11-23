@@ -12,32 +12,36 @@ class Produk extends Model
         return $this->read('SELECT * FROM `v_produk_aktif`');
     }
 
-    // Disiapkan untuk integrasi SP; update dan hapus belum diaktifkan.
+    public function find(int $id): ?array
+    {
+        foreach ($this->all() as $row) {
+            if (isset($row['idProduk']) && (int) $row['idProduk'] === $id) {
+                return $row;
+            }
+        }
+        return null;
+    }
 
-    public function tambah($idProduk, $jenis, $namaProduk, $idsatuan, $status, $harga): void
+    public function tambah($jenis, $namaProduk, $idsatuan, $status, $harga): void
     {
         $this->call(
-            'CALL sp_produk_tambah(?, ?, ?, ?, ?, ?)',
-            'issiii',
-            [$idProduk, $jenis, $namaProduk, $idsatuan, $status, $harga]
+            'CALL sp_produk_tambah(?, ?, ?, ?, ?)',
+            'ssiii',
+            [$jenis, $namaProduk, $idsatuan, $status, $harga]
         );
     }
 
     public function update($idProduk, $jenis, $namaProduk, $idsatuan, $status, $harga): void
     {
-        $this->call(
-            'CALL sp_produk_update(?, ?, ?, ?, ?, ?)',
-            'issiii',
-            [$idProduk, $jenis, $namaProduk, $idsatuan, $status, $harga]
+        $this->write(
+            'UPDATE `PRODUK` SET `jenis` = ?, `namaProduk` = ?, `idsatuan` = ?, `status` = ?, `harga` = ? WHERE `idProduk` = ?',
+            'ssiiii',
+            [$jenis, $namaProduk, $idsatuan, $status, $harga, $idProduk]
         );
     }
 
     public function hapus(int $id): void
     {
-        $this->call(
-            'CALL sp_produk_hapus(?)',
-            'i',
-            [$id]
-        );
+        $this->write('DELETE FROM `PRODUK` WHERE `idProduk` = ?', 'i', [$id]);
     }
 }

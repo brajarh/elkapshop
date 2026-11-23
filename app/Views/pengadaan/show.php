@@ -128,17 +128,13 @@
                 ) ?>"
             >
 
-            <label for="idproduk">
-                ID Produk
-            </label>
-
-            <input
-                type="number"
-                id="idproduk"
-                name="idproduk"
-                min="1"
-                required
-            >
+            <label for="idproduk">Produk</label>
+        <select id="idproduk" name="idproduk" required>
+            <option value="">-- Pilih Produk --</option>
+            <?php foreach ($produks as $p): ?>
+                <option value="<?= e($p['idProduk']) ?>"><?= e($p['namaProduk']) ?></option>
+            <?php endforeach; ?>
+        </select>
 
             <label for="harga">
                 Harga Satuan
@@ -250,3 +246,38 @@
     <?php endif; ?>
 
 </section>
+
+
+<?php if ($pengadaan['status'] === 'D'): ?>
+<section class="panel">
+    <div class="toolbar">
+        <a class="btn secondary" href="<?= e(url('pengadaan', 'edit', ['id' => (int) $pengadaan['idpengadaan']])) ?>">Edit transaksi</a>
+        <form method="post" action="<?= e(url('pengadaan', 'delete', ['id' => (int) $pengadaan['idpengadaan']])) ?>" onsubmit="return confirm('Hapus transaksi Draft beserta detailnya?')">
+            <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+            <button type="submit">Hapus Draft</button>
+        </form>
+    </div>
+</section>
+<section class="panel form-panel">
+    <h2>Edit / Hapus Detail Draft</h2>
+    <?php foreach ($details as $item): ?>
+        <?php if (isset($item['iddetail_pengadaan'])): ?>
+            <p><?= e($item['namaProduk']) ?></p>
+            <form method="post" action="<?= e(url('pengadaan', 'updateDetail', ['id' => (int) $pengadaan['idpengadaan']])) ?>">
+                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                <input type="hidden" name="detail" value="<?= e($item['iddetail_pengadaan']) ?>">
+                <label>Harga Satuan <input type="number" name="harga" min="0" required value="<?= e($item['harga_satuan']) ?>"></label>
+                <label>Jumlah <input type="number" name="jumlah" min="1" required value="<?= e($item['jumlah']) ?>"></label>
+                <button type="submit">Simpan Detail</button>
+            </form>
+            <form method="post" action="<?= e(url('pengadaan', 'deleteDetail', ['id' => (int) $pengadaan['idpengadaan']])) ?>" onsubmit="return confirm('Hapus detail ini?')">
+                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                <input type="hidden" name="detail" value="<?= e($item['iddetail_pengadaan']) ?>">
+                <button type="submit">Hapus Detail</button>
+            </form>
+        <?php else: ?>
+            <p>VIEW detail belum menyediakan ID detail.</p>
+        <?php endif; ?>
+    <?php endforeach; ?>
+</section>
+<?php endif; ?>

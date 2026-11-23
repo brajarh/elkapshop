@@ -122,3 +122,38 @@ foreach ($details as $detail) {
         </form>
     </section>
 <?php endif; ?>
+
+
+<?php if ($penerimaan['status'] === 'D'): ?>
+<section class="panel">
+    <div class="toolbar">
+        <a class="btn secondary" href="<?= e(url('penerimaan', 'edit', ['id' => (int) $penerimaan['idpenerimaan']])) ?>">Edit transaksi</a>
+        <form method="post" action="<?= e(url('penerimaan', 'delete', ['id' => (int) $penerimaan['idpenerimaan']])) ?>" onsubmit="return confirm('Hapus transaksi Draft beserta detailnya?')">
+            <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+            <button type="submit">Hapus Draft</button>
+        </form>
+    </div>
+</section>
+<section class="panel form-panel">
+    <h2>Edit / Hapus Detail Draft</h2>
+    <?php foreach ($details as $item): ?>
+        <?php if (isset($item['iddetail_penerimaan'])): ?>
+            <p><?= e($item['namaProduk']) ?></p>
+            <form method="post" action="<?= e(url('penerimaan', 'updateDetail', ['id' => (int) $penerimaan['idpenerimaan']])) ?>">
+                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                <input type="hidden" name="detail" value="<?= e($item['iddetail_penerimaan']) ?>">
+                <label>Harga Satuan <input type="number" name="harga" min="0" required value="<?= e($item['harga_satuan_terima']) ?>"></label>
+                <label>Jumlah <input type="number" name="jumlah" min="1" required value="<?= e($item['jumlah_terima']) ?>"></label>
+                <button type="submit">Simpan Detail</button>
+            </form>
+            <form method="post" action="<?= e(url('penerimaan', 'deleteDetail', ['id' => (int) $penerimaan['idpenerimaan']])) ?>" onsubmit="return confirm('Hapus detail ini?')">
+                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                <input type="hidden" name="detail" value="<?= e($item['iddetail_penerimaan']) ?>">
+                <button type="submit">Hapus Detail</button>
+            </form>
+        <?php else: ?>
+            <p>VIEW detail belum menyediakan ID detail.</p>
+        <?php endif; ?>
+    <?php endforeach; ?>
+</section>
+<?php endif; ?>

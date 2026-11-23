@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../Models/Pengadaan.php';
+require_once __DIR__ . '/../Models/User.php';
+require_once __DIR__ . '/../Models/Vendor.php';
+require_once __DIR__ . '/../Models/Produk.php';
 
 class PengadaanController extends Controller
 {
@@ -26,7 +29,9 @@ class PengadaanController extends Controller
     public function create(): void
     {
         $this->view('pengadaan/form', [
-            'title' => 'Buat Pengadaan'
+            'title' => 'Buat Pengadaan',
+            'users' => (new User())->all(),
+            'vendors' => (new Vendor())->aktif()
         ]);
     }
 
@@ -68,7 +73,8 @@ class PengadaanController extends Controller
         $this->view('pengadaan/show', [
             'title' => 'Detail Pengadaan',
             'pengadaan' => $pengadaan,
-            'details' => $details
+            'details' => $details,
+            'produks' => $pengadaan['status'] === 'D' ? (new Produk())->aktif() : []
         ]);
     }
 
@@ -183,6 +189,80 @@ class PengadaanController extends Controller
             )
         );
 
+        exit;
+    }
+
+    private function draft(int $id): array
+    {
+        $row = $this->model->find($id);
+        if (!$row || $row['status'] !== 'D') {
+            throw new RuntimeException('Hanya transaksi Draft yang dapat diubah.');
+        }
+        return $row;
+    }
+
+    private function detailDraft(int $id, int $detail): void
+    {
+        $this->draft($id);
+        foreach ($this->model->detail($id) as $row) {
+            if (isset($row['iddetail_pengadaan']) && (int) $row['iddetail_pengadaan'] === $detail) {
+                return;
+            }
+        }
+        throw new RuntimeException('Detail tidak ditemukan pada transaksi ini.');
+    }
+
+    public function edit(): void
+    {
+        $id = $this->id();
+        $row = $this->draft($id);
+        $this->view('pengadaan/edit', ['title' => 'Edit Pengadaan', 'row' => $row]);
+    }
+
+    public function update(): void
+    {
+        $id = $this->id();
+        $this->draft($id);
+        $iduser = $this->post('iduser', 'i');
+        $idvendor = $this->post('idvendor', 'i');
+        if ($iduser <= 0 || $idvendor <= 0) {
+            throw new InvalidArgumentException('ID tidak valid.');
+        }
+        $this->model->update($id, $iduser, $idvendor);
+        header('Location: ' . url('pengadaan', 'show', ['id' => $id]));
+        exit;
+    }
+
+    public function delete(): void
+    {
+        $id = $this->id();
+        $this->draft($id);
+        $this->model->hapus($id);
+        $this->redirect('pengadaan');
+    }
+
+    public function updateDetail(): void
+    {
+        $id = $this->id();
+        $detail = $this->post('detail', 'i');
+        $harga = $this->post('harga', 'i');
+        $jumlah = $this->post('jumlah', 'i');
+        $this->detailDraft($id, $detail);
+        if ($harga < 0 || $jumlah <= 0) {
+            throw new InvalidArgumentException('Harga atau jumlah tidak valid.');
+        }
+        $this->model->updateDetail($id, $detail, $harga, $jumlah);
+        header('Location: ' . url('pengadaan', 'show', ['id' => $id]));
+        exit;
+    }
+
+    public function deleteDetail(): void
+    {
+        $id = $this->id();
+        $detail = $this->post('detail', 'i');
+        $this->detailDraft($id, $detail);
+        $this->model->hapusDetail($id, $detail);
+        header('Location: ' . url('pengadaan', 'show', ['id' => $id]));
         exit;
     }
 }
