@@ -40,4 +40,17 @@ class Produk extends Model
     {
         $this->write('DELETE FROM `PRODUK` WHERE `idProduk` = ?', 'i', [$id]);
     }
+
+    public function kartuStok(int $id): array
+{
+    return $this->read(
+        'SELECT * FROM v_kartu_stok
+         WHERE idproduk = ?
+         ORDER BY idkartu_stok DESC',
+        'i',
+        [$id]
+    );
+}
+
+
 }

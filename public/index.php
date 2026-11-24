@@ -38,6 +38,9 @@ try {
         $actions[] = 'aktif';
     }
 
+    if ($page === 'margin-penjualan') {
+    $actions[] = 'aktifkan';
+}
     // Action khusus pengadaan
     if ($page === 'pengadaan') {
         $actions[] = 'show';
@@ -50,6 +53,10 @@ if ($page === 'penerimaan') {
     $actions[] = 'show';
     $actions[] = 'storeDetail';
     $actions[] = 'simpan';
+}
+
+if ($page === 'produk') {
+    $actions[] = 'show';
 }
 
     if (in_array($page, ['pengadaan', 'penerimaan'], true)) {
@@ -89,10 +96,11 @@ if ($page === 'penerimaan') {
         'storeDetail',
         'updateDetail',
         'deleteDetail',
-        'simpan'
+        'simpan',
+        'aktifkan'
     ],
     true
-    );
+);
     
 
     $method = $write ? 'POST' : 'GET';

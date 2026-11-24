@@ -1,4 +1,4 @@
-        <footer>Elkap Barbershop · PHP Native MVC</footer>
+        <footer>Elkap Shop </footer>
     </main>
     <script src="assets/js/app.js"></script>
 </body>

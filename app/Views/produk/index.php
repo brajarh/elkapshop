@@ -63,6 +63,12 @@
                         </td>
                         <td>
                             <?php if (isset($row['idProduk']) && (int) $row['idProduk'] > 0): ?>
+                                <a class="btn secondary"
+   href="<?= e(url('produk', 'show', [
+       'id' => (int) $row['idProduk']
+   ])) ?>">
+    Detail
+</a>
                                 <a class="btn secondary" href="<?= e(url('produk', 'edit', ['id' => (int) $row['idProduk']])) ?>">Edit</a>
                                 <form method="post" action="<?= e(url('produk', 'delete', ['id' => (int) $row['idProduk']])) ?>" style="display:inline" onsubmit="return confirm('Yakin hapus data ini?')">
                                     <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">

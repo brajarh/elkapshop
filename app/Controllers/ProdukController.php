@@ -22,6 +22,7 @@ class ProdukController extends Controller
             'aktif' => false
         ]);
     }
+    
 
     public function aktif(): void
     {
@@ -33,6 +34,25 @@ class ProdukController extends Controller
             'aktif' => true
         ]);
     }
+
+    public function show(): void
+{
+    $id = $this->id();
+
+    $row = $this->model->find($id);
+
+    if (!$row) {
+        throw new RuntimeException(
+            'Produk tidak ditemukan.'
+        );
+    }
+
+    $this->view('produk/show', [
+        'title' => 'Detail Produk',
+        'row' => $row,
+        'details' => $this->model->kartuStok($id)
+    ]);
+}
 
    public function create(): void
 {
@@ -114,4 +134,6 @@ class ProdukController extends Controller
         $this->model->hapus($id);
         $this->redirect('produk');
     }
+
+    
 }

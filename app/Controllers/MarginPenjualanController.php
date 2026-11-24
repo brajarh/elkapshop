@@ -47,7 +47,7 @@ class MarginPenjualanController extends Controller
             $this->post('idmargin_penjualan', 'i'),
             $this->post('created_at', 't'),
             $this->post('persen', 'd'),
-            $this->post('status', 'i'),
+            0,
             $this->post('iduser', 'i'),
             $this->post('updated_at', 't')
         );
@@ -59,16 +59,15 @@ class MarginPenjualanController extends Controller
     {
         $id = $this->id();
         $row = $this->model->find($id);
+
         if (!$row) {
-            throw new RuntimeException('Data tidak ditemukan.');
+            throw new RuntimeException(
+                'Data tidak ditemukan.'
+            );
         }
-        foreach (['created_at', 'persen', 'status', 'iduser', 'updated_at'] as $key) {
-            if (!array_key_exists($key, $row)) {
-                throw new RuntimeException('Data tabel belum menyediakan kolom: ' . $key);
-            }
-        }
+
         $this->view('margin-penjualan/form', [
-            'title' => 'Edit MarginPenjualan',
+            'title' => 'Edit Margin Penjualan',
             'row' => $row
         ]);
     }
@@ -76,30 +75,58 @@ class MarginPenjualanController extends Controller
     public function update(): void
     {
         $id = $this->id();
+
         if ($id <= 0 || !$this->model->find($id)) {
-            throw new RuntimeException('Data tidak ditemukan.');
+            throw new RuntimeException(
+                'Data tidak ditemukan.'
+            );
         }
-        if (!in_array($this->post('status', 'i'), [0, 1], true)) {
-            throw new InvalidArgumentException('Status tidak valid.');
-        }
+
         $this->model->update(
             $id,
             $this->post('created_at', 't'),
             $this->post('persen', 'd'),
-            $this->post('status', 'i'),
             $this->post('iduser', 'i'),
             $this->post('updated_at', 't')
         );
+
+        $this->redirect('margin-penjualan');
+    }
+
+    public function aktifkan(): void
+    {
+        $id = $this->id();
+
+        if ($id <= 0 || !$this->model->find($id)) {
+            throw new RuntimeException(
+                'Margin tidak ditemukan.'
+            );
+        }
+
+        $this->model->aktifkan($id);
+
         $this->redirect('margin-penjualan');
     }
 
     public function delete(): void
     {
         $id = $this->id();
-        if ($id <= 0 || !$this->model->find($id)) {
-            throw new RuntimeException('Data tidak ditemukan.');
+        $row = $this->model->find($id);
+
+        if (!$row) {
+            throw new RuntimeException(
+                'Data tidak ditemukan.'
+            );
         }
+
+        if ((int) $row['status'] === 1) {
+            throw new RuntimeException(
+                'Margin aktif tidak dapat dihapus.'
+            );
+        }
+
         $this->model->hapus($id);
+
         $this->redirect('margin-penjualan');
     }
 }
