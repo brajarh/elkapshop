@@ -66,7 +66,7 @@ if ($page === 'penerimaan') {
             $action,
             $page === 'dashboard'
                 ? ['index']
-                : $actions,
+                : ($page === 'penjualan' ? ['index', 'create', 'show', 'store'] : $actions),
             true
         )
     ) {

@@ -4,22 +4,18 @@ class MarginPenjualan extends Model
 {
     public function all(): array
     {
-        return $this->read('SELECT * FROM `v_margin`');
+        return $this->read('SELECT * FROM MARGIN_PENJUALAN ORDER BY idmargin_penjualan');
     }
 
     public function aktif(): array
     {
-        return $this->read('SELECT * FROM `v_margin_aktif`');
+        return $this->read('SELECT * FROM MARGIN_PENJUALAN WHERE status = 1 ORDER BY idmargin_penjualan');
     }
 
     public function find(int $id): ?array
     {
-        foreach ($this->all() as $row) {
-            if (isset($row['idmargin_penjualan']) && (int) $row['idmargin_penjualan'] === $id) {
-                return $row;
-            }
-        }
-        return null;
+        $rows = $this->read('SELECT * FROM MARGIN_PENJUALAN WHERE idmargin_penjualan = ?', 'i', [$id]);
+        return $rows[0] ?? null;
     }
 
     public function tambah($idmargin_penjualan, $created_at, $persen, $status, $iduser, $updated_at): void

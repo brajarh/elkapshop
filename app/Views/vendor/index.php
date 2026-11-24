@@ -42,7 +42,7 @@
                                     <button type="submit">Hapus</button>
                                 </form>
                             <?php else: ?>
-                                <small>VIEW belum menyediakan ID.</small>
+                                <small>ID data tidak valid.</small>
                             <?php endif; ?>
                         </td>
                     </tr>

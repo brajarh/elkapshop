@@ -10,4 +10,5 @@ $routes = [
     'margin-penjualan' => 'MarginPenjualanController',
     'pengadaan' => 'PengadaanController',
     'penerimaan' => 'PenerimaanController',
+    'penjualan' => 'PenjualanController',
 ];

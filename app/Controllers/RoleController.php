@@ -44,11 +44,11 @@ class RoleController extends Controller
         $id = $this->id();
         $row = $this->model->find($id);
         if (!$row) {
-            throw new RuntimeException('Data tidak ditemukan atau VIEW belum menyediakan ID.');
+            throw new RuntimeException('Data tidak ditemukan.');
         }
         foreach (['nama_role'] as $key) {
             if (!array_key_exists($key, $row)) {
-                throw new RuntimeException('VIEW belum menyediakan kolom: ' . $key);
+                throw new RuntimeException('Data tabel belum menyediakan kolom: ' . $key);
             }
         }
         $this->view('role/form', [

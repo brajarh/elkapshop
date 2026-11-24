@@ -21,6 +21,7 @@
             <a href="<?= e(url('margin-penjualan')) ?>">Margin Penjualan</a>
             <a href="<?= e(url('pengadaan')) ?>">Pengadaan</a>
             <a href="<?= e(url('penerimaan')) ?>">Penerimaan</a>
+            <a href="<?= e(url('penjualan')) ?>">Penjualan</a>
         </nav>
     </aside>
     <main>

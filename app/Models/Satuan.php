@@ -4,22 +4,18 @@ class Satuan extends Model
 {
     public function all(): array
     {
-        return $this->read('SELECT * FROM `V_satuan`');
+        return $this->read('SELECT idsatuan, namaSatuan AS SATUAN, Status FROM SATUAN ORDER BY idsatuan');
     }
 
     public function aktif(): array
     {
-        return $this->read('SELECT * FROM `v_satuan_aktif`');
+        return $this->read('SELECT idsatuan, namaSatuan AS SATUAN, Status FROM SATUAN WHERE Status = 1 ORDER BY idsatuan');
     }
 
     public function find(int $id): ?array
     {
-        foreach ($this->all() as $row) {
-            if (isset($row['idsatuan']) && (int) $row['idsatuan'] === $id) {
-                return $row;
-            }
-        }
-        return null;
+        $rows = $this->read('SELECT idsatuan, namaSatuan AS SATUAN, Status FROM SATUAN WHERE idsatuan = ?', 'i', [$id]);
+        return $rows[0] ?? null;
     }
 
     public function tambah($namaSatuan, $Status): void

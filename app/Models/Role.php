@@ -4,17 +4,13 @@ class Role extends Model
 {
     public function all(): array
     {
-        return $this->read('SELECT * FROM `v_role`');
+        return $this->read('SELECT * FROM `ROLE` ORDER BY idrole');
     }
 
     public function find(int $id): ?array
     {
-        foreach ($this->all() as $row) {
-            if (isset($row['idrole']) && (int) $row['idrole'] === $id) {
-                return $row;
-            }
-        }
-        return null;
+        $rows = $this->read('SELECT * FROM `ROLE` WHERE idrole = ?', 'i', [$id]);
+        return $rows[0] ?? null;
     }
 
     public function tambah($nama_role): void

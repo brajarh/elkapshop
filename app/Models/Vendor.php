@@ -4,22 +4,18 @@ class Vendor extends Model
 {
     public function all(): array
     {
-        return $this->read('SELECT * FROM `V_VENDOR`');
+        return $this->read('SELECT * FROM VENDOR ORDER BY idvendor');
     }
 
     public function aktif(): array
     {
-        return $this->read('SELECT * FROM `v_vendor_aktif`');
+        return $this->read('SELECT * FROM VENDOR WHERE status = \'1\' ORDER BY idvendor');
     }
 
     public function find(int $id): ?array
     {
-        foreach ($this->all() as $row) {
-            if (isset($row['idvendor']) && (int) $row['idvendor'] === $id) {
-                return $row;
-            }
-        }
-        return null;
+        $rows = $this->read('SELECT * FROM VENDOR WHERE idvendor = ?', 'i', [$id]);
+        return $rows[0] ?? null;
     }
 
     public function tambah($nama_vendor, $badan_hukum, $status): void

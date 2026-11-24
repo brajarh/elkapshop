@@ -4,17 +4,13 @@ class User extends Model
 {
     public function all(): array
     {
-        return $this->read('SELECT * FROM `V_USER`');
+        return $this->read('SELECT u.iduser AS ID, u.username AS USERNAME, u.idrole, r.nama_role AS ROLE FROM `USER` u LEFT JOIN `ROLE` r ON r.idrole = u.idrole ORDER BY u.iduser');
     }
 
     public function find(int $id): ?array
     {
-        foreach ($this->all() as $row) {
-            if (isset($row['ID']) && (int) $row['ID'] === $id) {
-                return $row;
-            }
-        }
-        return null;
+        $rows = $this->read('SELECT iduser AS ID, username AS USERNAME, idrole FROM `USER` WHERE iduser = ?', 'i', [$id]);
+        return $rows[0] ?? null;
     }
 
     public function tambah($username, $password, $idrole): void

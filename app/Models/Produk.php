@@ -4,22 +4,18 @@ class Produk extends Model
 {
     public function all(): array
     {
-        return $this->read('SELECT * FROM `v_produk`');
+        return $this->read('SELECT p.*, s.namaSatuan, COALESCE((SELECT k.stock FROM KARTU_STOK k WHERE k.idproduk = p.idProduk ORDER BY k.created_at DESC, k.idkartu_stok DESC LIMIT 1), 0) AS stok_terkini FROM PRODUK p LEFT JOIN SATUAN s ON s.idsatuan = p.idsatuan ORDER BY p.idProduk');
     }
 
     public function aktif(): array
     {
-        return $this->read('SELECT * FROM `v_produk_aktif`');
+        return $this->read('SELECT p.*, s.namaSatuan, COALESCE((SELECT k.stock FROM KARTU_STOK k WHERE k.idproduk = p.idProduk ORDER BY k.created_at DESC, k.idkartu_stok DESC LIMIT 1), 0) AS stok_terkini FROM PRODUK p LEFT JOIN SATUAN s ON s.idsatuan = p.idsatuan WHERE p.status = 1 ORDER BY p.idProduk');
     }
 
     public function find(int $id): ?array
     {
-        foreach ($this->all() as $row) {
-            if (isset($row['idProduk']) && (int) $row['idProduk'] === $id) {
-                return $row;
-            }
-        }
-        return null;
+        $rows = $this->read('SELECT * FROM PRODUK WHERE idProduk = ?', 'i', [$id]);
+        return $rows[0] ?? null;
     }
 
     public function tambah($jenis, $namaProduk, $idsatuan, $status, $harga): void
